@@ -39,27 +39,44 @@ class PrefixTree:
 
 
     def show(self):
-        if self.children is None:
-            return {self.value: None}
+        if not self.children:
+            return None
         
         return {key : child.show() for key, child in self.children.items()}
     
     def get_words(self):
-        if self.children is None:
-            return []
+        if not self.children:
+            return [""]
         
         words = []
         for child, tree in self.children.items():
             words += [child + prefix for prefix in tree.get_words()]
-        print(words)
+        # print(words)
         return words
 
     def save(self, filename = "prefixtree.json"):
         with open(filename, "w") as json_file:
             json.dump(self.show(), json_file, indent=4)
     
-    def load():
-        pass
+    def deserialize(self, val, obj):
+            if not obj:
+                return PrefixTree(val) 
+            
+            new_branches = {}
+            for letter, children in obj.items():
+                new_branches[letter] = self.deserialize(letter, children)
+            
+            new_tree = PrefixTree(val)
+            new_tree.children = new_branches
+            return new_tree
+    
+
+    def load(self, filename):
+        with open(filename, "r") as json_file:
+            tree = json.load(json_file)
+        
+        return self.deserialize(None, tree)
+
 
 
 def speed_test():
@@ -93,15 +110,18 @@ def speed_test():
 
 
 if __name__ == "__main__":
-    tree = PrefixTree()
-    word = ["apple", "argon", "ape", "berry", "bliss"]
-    for w in word:
-        tree.add(w)
+    # tree = PrefixTree()
+    # word = ["apple", "argon", "ape", "berry", "bliss", "holly", "mother"]
+    # test = ["ap", "ab"]
+    # for w in word:
+    #     tree.add(w)
     
-    
-    # print(tree.show())
-    print(tree.get_words())
     # tree.save()
+
+    tree = PrefixTree()
+    tree = tree.load("prefixtree.json")
+    print(tree.get_words())
+
     pass
 
 
