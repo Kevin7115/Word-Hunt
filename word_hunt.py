@@ -1,25 +1,25 @@
 from array import *
 from merge_sort import *
-from solution import *
+from solution import Solution
 
 
-def arrayCreator(str: str, num) -> array:
+def arrayCreator(letters: str, num) -> array:
     board = []
     arr = []
     for i in range(num):
         for j in range(num):
             start = j + (i*4)
             end = j+1 + (i*4)
-            arr.append(str[start:end])
+            arr.append(letters[start:end])
         board.append(arr)
         arr = []
     return board
 
-def play(str):
-    if len(str) == 16:
+def play(letters):
+    if len(letters) == 16:
         print("Starting Solve")
 
-        s1 = Solution(arrayCreator(str, 4))
+        s1 = Solution(arrayCreator(letters, 4))
 
         arr = s1.fullSearch()
         mergesort(arr)
@@ -31,7 +31,8 @@ def play(str):
         s1.showBoard()
 
 
-letters = "arsebthfieshylog"
+letters = "deaghtinbrawploy"
 play(letters)
 
-
+# 7.129152059555054 seconds to search with old method
+# 5.4060752391815186 seconds to search using same word twice
