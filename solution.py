@@ -1,93 +1,64 @@
 from array import *
-import json
+from trie import *
 import time
 
-dict = 'words_dictionary.json'
+class Solver: 
+    def __init__(self):
+        self.board = ""
+        self.R, self.C = 0, 0
 
-class Dictionary:
-    def __init__(self, file) -> None:
-        self.dict = json.loads(open(file).read())
+        self.words = set()
+        self.full_list = set()
+        
+        self.library = Dictionary('words_dictionary.json')
+        self.prefix_lib = PrefixTree().load("prefix_dictionary.json")
 
-    def check(self, word):
-        if word in self.dict:
-            return True
-        return False
-    
-    def checkPrefix(self, prefix):
-        for word in self.dict:
-            if word[:len(prefix)] == prefix:
-                return True
-        return False
-
-
-class Solution: 
-    def __init__(self, b: array) -> None:
-        self.arr = b
-        self.words = []
-        self.realWords = []
-        self.R = len(self.arr) - 1
-        self.C = len(self.arr[0]) - 1
-        self.library = Dictionary(dict)
         self.time = 0
-          
+        self.max_word_len = 10
 
-    def showBoard(self) -> array:
+    def setBoard(self, b):
+        self.board = b     
+        self.R = len(self.board) - 1
+        self.C = len(self.board[0]) - 1
+
+    def showBoard(self):
         for i in range(self.R+1):
-            print(self.arr[i]) 
+            print(self.board[i]) 
     
     def getTime(self):
         return self.time
 
-    def search(self, r, c, str = "", visited = []):
-        
-        if (r,c) not in visited: 
-            visited += [(r, c)]
+    def dfs(self, start, word = "", visited = set()):
+        def get_neighbors(coord):
+            r,c = coord
+            neighbors = [(r + x, c + y) 
+                         for y in range(-1, 2) 
+                         for x in range(-1, 2) 
+                         if (r+x >= 0 and c+y >= 0) and (r+x <= self.R and c+y <= self.C) and not (x == 0 and y == 0)
+                        ]
+            return neighbors
 
-            if not (r > self.R or r < 0 or c > self.C or c < 0):
-
-                str += self.arr[r][c]
-
-                if len(str) < 10:
-
-                    if len(str) > 4 and self.library.check(str) and str not in self.words:
-                        self.words.append(str)
-        
-           
-                    self.search(r, c+1, str, visited) #r 
-                    self.search(r, c-1, str, visited) #l
-                    self.search(r-1, c-1, str, visited) # u l 
-                    self.search(r-1, c, str, visited) # u
-                    self.search(r-1, c+1, str, visited) # u r
-                    self.search(r+1, c-1, str, visited) # d l
-                    self.search(r+1, c, str, visited) # d 
-                    self.search(r+1, c+1, str, visited) # d r
-        
-            visited.remove((r,c)) 
+        visited.add(start)
+        if word in self.prefix_lib and len(word) < self.max_word_len:
+            if word in self.library and not word in self.words:
+                self.words.add(word)
+            
+            for neigh in get_neighbors(start):
+                if neigh not in visited:
+                    self.dfs(neigh, word + self.board[start[0]][start[1]], visited)
+        visited.remove(start)
         return self.words
-
-
-    def fullSearch(self):
+    
+    def fullDfs(self):
+        self.full_list = set()
         startTime = time.time()
         for r in range(self.R + 1):
             for c in range(self.C + 1):
-                self.realWords += self.search(r,c)
-                print(r,c)
-                self.words = []
-        endTime = time.time()
-        self.time = endTime - startTime
-        return self.realWords
+                self.full_list = self.full_list | self.dfs((r,c))
+                self.words = set()
+        self.time = time.time() - startTime
+        return list(self.full_list)
     
-a = Dictionary(dict)
-str = "ws"
-print(a.checkPrefix(str))
-
-
-#Backup: 
-#self.search(r, c+1, str, visited) #r 
-#self.search(r, c-1, str, visited) #l
-#self.search(r-1, c-1, str, visited) # u l 
-#self.search(r-1, c, str, visited) # u
-#self.search(r-1, c+1, str, visited) # u r
-#self.search(r+1, c-1, str, visited) # d l
-#self.search(r+1, c, str, visited) # d 
-#self.search(r+1, c+1, str, visited) # d r
+    
+if __name__ == "__main__":
+    pass

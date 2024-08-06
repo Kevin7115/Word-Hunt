@@ -1,7 +1,20 @@
-from solution import Dictionary
 import json
 import time
 
+class Dictionary:
+    def __init__(self, file) -> None:
+        self.dict = json.loads(open(file).read())
+
+    def __contains__(self, word):
+        if word in self.dict:
+            return True
+        return False
+    
+    def checkPrefix(self, prefix):
+        for word in self.dict:
+            if word[:len(prefix)] == prefix:
+                return True
+        return False
 
 class PrefixTree:
     def __init__(self, val = None) -> None:
@@ -27,7 +40,8 @@ class PrefixTree:
     
     def __contains__(self, prefix):
         if prefix == "":
-            raise Exception("Invalid string")
+            return True
+            # raise Exception("Invalid string")
         
         if len(prefix) == 1:
             if prefix[0] in self.children:
@@ -45,6 +59,7 @@ class PrefixTree:
         return {key : child.show() for key, child in self.children.items()}
     
     def get_words(self):
+        # not accurate as prefix-words aren't returned (ex/ app if apple is a word)
         if not self.children:
             return [""]
         
@@ -110,18 +125,6 @@ def speed_test():
 
 
 if __name__ == "__main__":
-    # tree = PrefixTree()
-    # word = ["apple", "argon", "ape", "berry", "bliss", "holly", "mother"]
-    # test = ["ap", "ab"]
-    # for w in word:
-    #     tree.add(w)
-    
-    # tree.save()
-
-    tree = PrefixTree()
-    tree = tree.load("prefixtree.json")
-    print(tree.get_words())
-
     pass
 
 
